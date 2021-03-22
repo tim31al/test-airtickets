@@ -50,33 +50,18 @@ class PassengerRepository extends ServiceEntityRepository
         return $passenger;
     }
 
-
-    // /**
-    //  * @return Passenger[] Returns an array of Passenger objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findEmailsByFlight($flightId): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $conn = $this->getEntityManager()->getConnection();
 
-    /*
-    public function findOneBySomeField($value): ?Passenger
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $sql = 'select p.email from passenger p ' .
+                'left join ticket t on p.id = t.passenger_id '.
+                'and t.flight_id = :flight_id';
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute(['flight_id' => $flightId]);
+
+        return $stmt->fetchFirstColumn();
     }
-    */
+
 }

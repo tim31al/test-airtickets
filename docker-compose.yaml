@@ -1,0 +1,76 @@
+version: "3"
+
+services:
+  webserver:
+    build:
+      args:
+        UID: ${SERVER_UID}
+        USER: ${SERVER_USER}
+        GID: ${SERVER_GID}
+        GROUP: ${SERVER_GROUP}
+      context: docker/nginx
+    image: atimofeev/webserver
+    working_dir: ${WORKDIR}
+    ports:
+    - 80:80
+    depends_on:
+      - app
+    volumes:
+      - ./code:${WORKDIR}
+      - sock:${SOCKET_DIR}
+
+  app:
+    build:
+      args:
+        UID: ${SERVER_UID}
+        USER: ${SERVER_USER}
+        GID: ${SERVER_GID}
+        GROUP: ${SERVER_GROUP}
+      context: docker/fpm
+    image: atimofeev/php-fpm
+    env_file:
+      - .env
+    working_dir: ${WORKDIR}
+    volumes:
+      - ./code:${WORKDIR}
+      - sock:${SOCKET_DIR}
+
+  db:
+    container_name: ${DB_HOST}
+    image: postgres:13.2-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+    working_dir: ${WORKDIR}
+    ports:
+    - 5672:5672
+    - 8081:15672
+
+  mailcatcher:
+    container_name: mailcatcher
+    hostname: mailcatcher
+    image: jeanberu/mailcatcher
+    ports:
+      - 1025:1025
+      - 1080:1080
+
+volumes:
+  sock:
+
+
+

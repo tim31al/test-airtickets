@@ -115,7 +115,7 @@ class Passenger
             'password' => $this->getPassword(),
             'firstname' => $this->getFirstname(),
             'lastname' => $this->getLastname(),
-            'passNumber' => $this->getPassNumber(),
+            'pass_number' => $this->getPassNumber(),
         ];
     }
 
@@ -124,7 +124,7 @@ class Passenger
         return [
             'firstname' => $this->getFirstname(),
             'lastname' => $this->getLastname(),
-            'passNumber' => $this->getPassNumber(),
+            'pass_number' => $this->getPassNumber(),
         ];
     }
 }

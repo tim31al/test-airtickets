@@ -23,41 +23,16 @@ class TicketRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('t')
             ->select('t.id, t.flightId, t.seat, t.status, t.passengerId')
+            ->join('App\Entity\Flight', 'f', 'WITH', 'f.id = :id')
+            ->andWhere('f.isOnSale = true')
             ->andWhere('t.flightId = :id')
+            ->andWhere('t.status = :status')
             ->setParameter('id', $id)
+            ->setParameter('status', Ticket::STATUS_FREE)
             ->orderBy('t.seat')
             ->getQuery()
             ->getResult();
     }
 
 
-
-    // /**
-    //  * @return Ticket[] Returns an array of Ticket objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Ticket
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

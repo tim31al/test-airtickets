@@ -38,7 +38,11 @@ class TicketController extends AbstractController
      */
     public function index(TicketRepository $repository, int $flightId): Response
     {
-        $tickets = $repository->findByFlight($flightId);
+        try {
+            $tickets = $repository->findByFlight($flightId);
+        } catch (Exception $e) {
+            return $this->json(['error' => $e->getMessage()], 404);
+        }
         return $this->json($tickets);
     }
 
@@ -50,9 +54,9 @@ class TicketController extends AbstractController
      */
     public function buy(Request $request): Response
     {
-        list ($ticketId, $passenger) = $this->getRequestData($request);
-
         try {
+            list ($ticketId, $passenger) = $this->getRequestData($request);
+
             $data = $this->ticketService->buyOrBook($ticketId, $passenger);
         } catch (Exception $e) {
             return $this->json(['error' => $e->getMessage()], 400);
@@ -62,15 +66,14 @@ class TicketController extends AbstractController
     }
 
     /**
-     * @Route("/api/v1/tickets/booking", methods="POST", name="book_ticket")
+     * @Route("/api/v1/tickets/book", methods="POST", name="book_ticket")
      * @param Request $request
      * @return Response
      */
-    public function booking(Request $request): Response
+    public function book(Request $request): Response
     {
-        list ($ticketId, $passenger) = $this->getRequestData($request);
-
         try {
+            list ($ticketId, $passenger) = $this->getRequestData($request);
             $data = $this->ticketService->buyOrBook($ticketId, $passenger, true);
         } catch (Exception $e) {
             return $this->json(['error' => $e->getMessage()], 400);
@@ -95,16 +98,15 @@ class TicketController extends AbstractController
             return $this->json(['error' => $e->getMessage()], 400);
         }
 
-        return $this->json($data, 201);
+        return $this->json($data, 200);
     }
-
 
 
     private function getRequestData(Request $request): array
     {
-        $data = json_decode($request->getContent(), true);
-        $ticketId = $data['ticketId'];
-        $passenger = $data['passenger'];
+        list($ticketId, $passenger) = array_values(
+            json_decode($request->getContent(), true)
+        );
 
         return [$ticketId, $passenger];
     }

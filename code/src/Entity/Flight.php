@@ -47,6 +47,7 @@ class Flight
      */
     private $isOnSale;
 
+
     public function getId(): ?int
     {
         return $this->id;
@@ -130,7 +131,7 @@ class Flight
             'company' => $this->getCompany(),
             'departure' => $this->getDeparture(),
             'arrival' => $this->getArrival(),
-            'departureTime' => $this->getDepartureTime()->format('Y-m-d H:m:s'),
+            'departure_time' => $this->getDepartureTime()->format('Y-m-d H:m:s'),
         ];
     }
 }

@@ -127,10 +127,10 @@ class Ticket
     {
         return [
             'id' => $this->getId(),
-            'flightId' => $this->getFlightId(),
-            'passengerId' => $this->getPassengerId(),
+            'flight_id' => $this->getFlightId(),
+            'passenger_id' => $this->getPassengerId(),
             'seat' => $this->getSeat(),
-            'dateOfSale' => $this->getDateOfSale() ?
+            'date_of_sale' => $this->getDateOfSale() ?
                 $this->getDateOfSale()->format('Y-m-d H:m:s') : null,
             'status' => $this->getStatus(),
         ];
@@ -141,7 +141,7 @@ class Ticket
         return [
             'id' => $this->getId(),
             'seat' => $this->getSeat(),
-            'dateOfSale' => $this->getDateOfSale() ?
+            'date_of_sale' => $this->getDateOfSale() ?
                 $this->getDateOfSale()->format('Y-m-d H:m:s') : null,
             'status' => $this->getStatus(),
         ];

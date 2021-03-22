@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Flight;
 use App\Entity\Ticket;
 use App\Exceptions\FlightNotFoundException;
 use App\Exceptions\FlightSalesBlocked;
@@ -44,7 +45,11 @@ class TicketService
     public function buyOrBook($ticketId, $passenger, $toBook = false): array
     {
         $passenger = $this->passengerRepository->findOrCreate($passenger);
-        list($ticket, $flight) = $this->getTicketDataToSale($ticketId, $passenger, $toBook);
+        $ticket = $toBook ?
+            $this->getTicketDataToBook($ticketId) :
+            $this->getTicketDataToSale($ticketId, $passenger);
+
+        $flight = $this->getFlightInfo($ticket->getFlightId());
 
         $ticket->setPassengerId($passenger->getId());
         if ($toBook) {
@@ -89,34 +94,51 @@ class TicketService
     }
 
 
-    private function getTicketDataToSale($ticketId, $passenger, $toBook): array
+    private function getTicketDataToBook($ticketId): Ticket
     {
         $ticket = $this->ticketRepository->find((int)$ticketId);
         if (null === $ticket) {
             throw new TicketNotFoundException(sprintf('Ticket id:%s not found', $ticketId));
         }
 
-        if ($toBook && $ticket->getStatus() !== Ticket::STATUS_FREE) {
-            throw new TicketBlockedException(sprintf('Ticket id:%s blocked', $ticket->getId()));
+        if ($ticket->getStatus() !== Ticket::STATUS_FREE) {
+            throw new TicketBlockedException(sprintf('Ticket id:%d blocked', $ticket->getId()));
+        }
+
+        return $ticket;
+    }
+
+    private function getTicketDataToSale($ticketId, $passenger): Ticket
+    {
+        $ticket = $this->ticketRepository->find((int)$ticketId);
+        if (null === $ticket) {
+            throw new TicketNotFoundException(sprintf('Ticket id:%s not found', $ticketId));
+        }
+
+        if ($ticket->getStatus() === Ticket::STATUS_SOLD) {
+            throw new TicketBlockedException(sprintf('Ticket id:%d sold', $ticket->getId()));
         }
 
         if (
-            !$toBook &&
-            $ticket->getStatus() !== Ticket::STATUS_FREE &&
+            $ticket->getStatus() === Ticket::STATUS_BOOKED &&
             $ticket->getPassengerId() !== $passenger->getId()
         ) {
-            throw new TicketBlockedException(sprintf('Ticket id:%s blocked', $ticket->getId()));
+            throw new TicketBlockedException(sprintf('Ticket id:%d booked', $ticket->getId()));
         }
 
+        return $ticket;
+    }
 
-        $flight = $this->flightRepository->find($ticket->getFlightId());
+    private function getFlightInfo(int $id): Flight
+    {
+        $flight = $this->flightRepository->find($id);
         if ($flight === null) {
-            throw new FlightNotFoundException(sprintf('Flight id:%s not found', $ticket->getFlightId()));
+            throw new FlightNotFoundException(sprintf('Flight id:%d not found', $id));
         } else if (!$flight->getIsOnSale()) {
-            throw new FlightSalesBlocked(sprintf('Flight id:%s sales blocked', $flight->getId()));
+            throw new FlightSalesBlocked(sprintf('Flight id:%d sales blocked', $flight->getId()));
         }
 
-        return [$ticket, $flight];
+        return $flight;
     }
 
 }

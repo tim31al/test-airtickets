@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+
 use App\Repository\FlightRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +17,10 @@ class FlightController extends AbstractController
      */
     public function index(FlightRepository $flightRepository): Response
     {
-        $flights = $flightRepository->findOpened();
-        return $this->json($flights);
+        $flights = $flightRepository->findBy(['isOnSale' => true]);
+
+        return $this->json(
+            array_map(fn($item) => $item->toPrint(), $flights)
+        );
     }
 }
