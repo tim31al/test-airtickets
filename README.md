@@ -20,6 +20,10 @@
 
 ### Использование
 
+Проверить почту
+http://localhost:1080/
+
+http://localhost
 #### Доступные рейсы 
     /api/v1/flights
 
@@ -30,7 +34,7 @@
     /api/v1/tickets/buy
     POST
     {
-        "ticketId": 20,
+        "ticketId": 10,
         "passenger": {
             "email": "new-user@mail.com",
             "firstname": "Ivan",

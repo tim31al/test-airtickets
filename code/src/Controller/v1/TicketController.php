@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\v1;
 
 
 use App\Repository\TicketRepository;
@@ -56,13 +56,12 @@ class TicketController extends AbstractController
     {
         try {
             list ($ticketId, $passenger) = $this->getRequestData($request);
-
             $data = $this->ticketService->buyOrBook($ticketId, $passenger);
         } catch (Exception $e) {
-            return $this->json(['error' => $e->getMessage()], 400);
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->json($data, 201);
+        return $this->json($data, Response::HTTP_CREATED);
     }
 
     /**
@@ -76,10 +75,10 @@ class TicketController extends AbstractController
             list ($ticketId, $passenger) = $this->getRequestData($request);
             $data = $this->ticketService->buyOrBook($ticketId, $passenger, true);
         } catch (Exception $e) {
-            return $this->json(['error' => $e->getMessage()], 400);
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->json($data, 201);
+        return $this->json($data, Response::HTTP_CREATED);
     }
 
     /**
@@ -95,7 +94,7 @@ class TicketController extends AbstractController
 
             $data = $this->ticketService->cancelResevation($ticketId);
         } catch (Exception $e) {
-            return $this->json(['error' => $e->getMessage()], 400);
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         return $this->json($data, 200);

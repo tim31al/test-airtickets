@@ -7,7 +7,6 @@ namespace App\MessageHandler;
 use App\Message\FlightMessage;
 use App\Repository\FlightRepository;
 use App\Repository\PassengerRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -15,7 +14,6 @@ use Symfony\Component\Mime\Email;
 
 class FlightEventMessageHandler implements MessageHandlerInterface
 {
-    private EntityManagerInterface $em;
     private PassengerRepository $passengerRepository;
     private FlightRepository $flightRepository;
     private MailerInterface $mailer;
@@ -25,19 +23,16 @@ class FlightEventMessageHandler implements MessageHandlerInterface
      * FlightEventMessageHandler constructor.
      * @param PassengerRepository $passengerRepository
      * @param FlightRepository $flightRepository
-     * @param EntityManagerInterface $em
      * @param MailerInterface $mailer
      */
     public function __construct(
         PassengerRepository $passengerRepository,
         FlightRepository $flightRepository,
-        EntityManagerInterface $em,
         MailerInterface $mailer
     )
     {
         $this->passengerRepository = $passengerRepository;
         $this->flightRepository = $flightRepository;
-        $this->em = $em;
         $this->mailer = $mailer;
     }
 
@@ -48,7 +43,7 @@ class FlightEventMessageHandler implements MessageHandlerInterface
 
         try {
             $emails = array_values($this->passengerRepository->findEmailsByFlight($id));
-            $flight = $this->flightRepository->find((int)$id);
+            $flight = $this->flightRepository->find($id);
 
             $message = sprintf(
                 'Your flight %s - %s at %s %s',

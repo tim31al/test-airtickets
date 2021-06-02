@@ -125,9 +125,11 @@ class Flight
         return $this;
     }
 
+
     public function toPrint(): array
     {
         return [
+            'id' => $this->getId(),
             'company' => $this->getCompany(),
             'departure' => $this->getDeparture(),
             'arrival' => $this->getArrival(),

@@ -1,12 +1,9 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\v1;
 
 use App\Message\FlightMessage;
-use App\Repository\FlightRepository;
 use App\Service\FlightService;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,7 +38,7 @@ class EventController extends AbstractController
     {
         try{
             list($data) = array_values(json_decode($request->getContent(), true));
-            list($ticketId, $triggerAt, $event, $secret) = array_values($data);
+            list($ticketId, , $event) = array_values($data);
 
             switch ($event) {
                 case FlightService::EVENT_TICKETS_COMPLETED:
@@ -58,8 +55,8 @@ class EventController extends AbstractController
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),
-                'data' => $data
-            ], 400);
+                'data' => $data ?? '',
+            ], Response::HTTP_BAD_REQUEST);
         }
     }
 
